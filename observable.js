@@ -7,29 +7,41 @@ class Observable {
   }
 
   static timeout(time) {
-
-    let fired = false;
-    let obs = null;
-
-    const handle = setTimeout(function() {
-     fired = true;
-     obs.next();
-     obs.complete();
-    }, time)
-
     return new Observable(function subscribe(observer) {
-
-      if(fired === true) {
+      const handle = setTimeout(function() {
         observer.next();
         observer.complete();
-      }
-      else {
-        obs = observer;
-      }
-      
+       }, time);
+
       return {
         unsubscribe() {
           clearTimeout(handle);
+        }
+      }
+    });
+  }
+
+  static allNumbers() {
+    return new Observable(function subscribe(observer){
+      for(let num; true; num++){
+        observer.next(num);
+
+      }
+    })
+  }
+
+
+  static fromEvent(dom, eventName) {
+    return new Observable(function subscribe(observer){
+      const handler = ev => {
+        let observer = null;
+        observer.next(ev);
+      }
+      dom.addEventListener(eventName, handler);
+
+      return {
+        unsubscribe() {
+          dom.removeEventListener(eventName, handler);
         }
       }
     });
