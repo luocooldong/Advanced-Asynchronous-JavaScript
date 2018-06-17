@@ -7,12 +7,26 @@ class Observable {
   }
 
   static timeout(time) {
+
+    let fired = false;
+    let obs = null;
+
+    const handle = setTimeout(function() {
+     fired = true;
+     obs.next();
+     obs.complete();
+    }, time)
+
     return new Observable(function subscribe(observer) {
-      const handle = setTimeout(function() {
+
+      if(fired === true) {
         observer.next();
         observer.complete();
-      }, time)
-
+      }
+      else {
+        obs = observer;
+      }
+      
       return {
         unsubscribe() {
           clearTimeout(handle);
@@ -21,6 +35,7 @@ class Observable {
     });
   }
 }
+
 
 const obs = Observable.timeout(500);
 obs.subscribe({
